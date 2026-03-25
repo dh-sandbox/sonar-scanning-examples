@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  gradle-basic:
+    name: Gradle Basic (Java)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sonar-scanner-gradle/gradle-basic
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Run tests with coverage
+        run: ./gradlew test jacocoTestReport
+      - uses: qltysh/qlty-action/coverage@v2
+        with:
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: sonar-scanner-gradle/gradle-basic/build/reports/jacoco/test/jacocoTestReport.xml
+          tag: gradle-basic
+          incomplete: true
+
+  maven-basic:
+    name: Maven Basic (Java)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sonar-scanner-maven/maven-basic
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Run tests with coverage
+        run: mvn clean test
+      - uses: qltysh/qlty-action/coverage@v2
+        with:
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: sonar-scanner-maven/maven-basic/target/site/jacoco/jacoco.xml
+          tag: maven-basic
+          incomplete: true
+
+  dotnet:
+    name: .NET (C#)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sonar-scanner-dotnet/CSharpProject
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Run tests with coverage
+        run: dotnet test --collect:"XPlat Code Coverage"
+      - uses: qltysh/qlty-action/coverage@v2
+        with:
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: sonar-scanner-dotnet/CSharpProject/**/coverage.cobertura.xml
+          tag: dotnet
+          incomplete: true
+
+  coverage-complete:
+    name: Coverage Complete
+    needs: [gradle-basic, maven-basic, dotnet]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: qltysh/qlty-action/coverage@v2
+        with:
+          command: complete
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
