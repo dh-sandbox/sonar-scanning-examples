@@ -22,6 +22,8 @@ jobs:
       - name: Run tests with coverage
         run: ./gradlew test jacocoTestReport
       - uses: qltysh/qlty-action/coverage@v2
+        env:
+          JACOCO_SOURCE_PATH: sonar-scanner-gradle/gradle-basic/src/main/java
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: sonar-scanner-gradle/gradle-basic/build/reports/jacoco/test/jacocoTestReport.xml
@@ -43,9 +45,11 @@ jobs:
       - name: Run tests with coverage
         run: mvn clean test
       - uses: qltysh/qlty-action/coverage@v2
+        env:
+          JACOCO_SOURCE_PATH: sonar-scanner-maven/maven-basic/src/main/java
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
-          files: sonar-scanner-maven/maven-basic/target/site/jacoco/jacoco.xml
+          files: "**/target/site/jacoco/jacoco.xml"
           tag: maven-basic
           incomplete: true
 
