@@ -43,7 +43,7 @@ jobs:
           distribution: temurin
           java-version: 17
       - name: Run tests with coverage
-        run: mvn clean test
+        run: mvn clean verify
       - uses: qltysh/qlty-action/coverage@v2
         env:
           JACOCO_SOURCE_PATH: sonar-scanner-maven/maven-basic/src/main/java
