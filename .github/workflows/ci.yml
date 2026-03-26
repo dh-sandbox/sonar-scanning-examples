@@ -28,7 +28,6 @@ jobs:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: sonar-scanner-gradle/gradle-basic/build/reports/jacoco/test/jacocoTestReport.xml
           tag: gradle-basic
-          incomplete: true
 
   maven-basic:
     name: Maven Basic (Java)
@@ -51,7 +50,6 @@ jobs:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: "**/target/site/jacoco/jacoco.xml"
           tag: maven-basic
-          incomplete: true
 
   dotnet:
     name: .NET (C#)
@@ -71,16 +69,4 @@ jobs:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: sonar-scanner-dotnet/CSharpProject/**/coverage.cobertura.xml
           tag: dotnet
-          incomplete: true
 
-  coverage-complete:
-    name: Coverage Complete
-    needs: [gradle-basic, maven-basic, dotnet]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: qltysh/qlty-action/coverage@v2
-        with:
-          command: complete
-          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
